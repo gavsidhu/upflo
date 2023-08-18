@@ -1,4 +1,5 @@
 import { MailgunProvider } from "../../../../src/services/Email/Providers";
+import { MailgunProviderConfig } from "../../../../types/Email";
 
 jest.mock("mailgun.js", () => {
   return jest.fn().mockImplementation(() => {
@@ -7,14 +8,14 @@ jest.mock("mailgun.js", () => {
 });
 
 describe("MailgunProvider Class", () => {
-  let config;
-  let provider;
+  let config: MailgunProviderConfig & { domain: string };
+  let provider: any;
 
   beforeEach(() => {
     config = {
       domain: "fake-domain",
-      apiKey: "fake-api-key",
-      publicApiKey: "fake-public-api-key",
+      key: "fake-api-key",
+      username: "api",
     };
     provider = new MailgunProvider(config);
   });
