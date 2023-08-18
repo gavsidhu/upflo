@@ -185,10 +185,8 @@ describe("Lists", () => {
     mockRepository.findOne.mockResolvedValue(list);
     mockContactRepository.save.mockResolvedValue(removedContact);
 
-    // Call the removeTag method with the right parameters
     const result = await lists.removeContact({ contactId, listId });
 
-    // Check the result
     expect(result).toEqual(list);
   });
 });

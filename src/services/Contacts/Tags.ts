@@ -14,22 +14,12 @@ export class Tags {
   private tagRepository: Repository<Tag>;
   private contactRepository: Repository<Contact>;
 
-  /**
-   * Create a new instance of the Tags class.
-   * @param {DataSource} connection - The TypeORM DataSource connection.
-   */
   constructor(connection: DataSource) {
     this.connection = connection;
     this.tagRepository = this.connection.getRepository(Tag);
     this.contactRepository = this.connection.getRepository(Contact);
   }
 
-  /**
-   * Retrieve a tag by identifier.
-   * @param {string} identifier - The identifier of the tag.
-   * @returns {Promise<Tag>} - The retrieved tag.
-   * @throws {Error} - If the tag is not found.
-   */
   async retrieve(identifier: string): Promise<Tag> {
     try {
       // Try to find the tag by id first
@@ -48,7 +38,6 @@ export class Tags {
     }
   }
 
-  // Create a new tag
   async create(tagData: TagCreateParams) {
     if (!tagData) throw new Error("No tag data provided");
     try {
@@ -101,17 +90,6 @@ export class Tags {
     }
   }
 
-  /**
-   * Assigns a specific tag to a contact.
-   * If the tag is already assigned to the contact, no action is taken.
-   * If the tag does not exist, an error is thrown.
-   * If the contact does not exist, an error is thrown.
-   *
-   * @async
-   * @param {TagAssignParams} params - The parameters for tag assignment, including contact ID and tag name.
-   * @returns {Promise<Tag>} A promise that resolves to the assigned tag.
-   * @throws {Error} - Will throw an error if the tag or contact does not exist.
-   */
   async assign(params: TagAssignParams): Promise<Tag> {
     try {
       const { contactId, tagName } = params;
@@ -152,17 +130,6 @@ export class Tags {
     }
   }
 
-  /**
-   * @async
-   * @function removeTag
-   * @param {Object} params - Params for tag deletion
-   * @param {number} params.contactId - ID of the contact
-   * @param {string} params.tagName - Name of the tag
-   * @throws Will throw an error if the contact does not exist
-   * @throws Will throw an error if the tag does not exist
-   * @throws Will throw an error if the tag is not assigned to the contact
-   * @returns {Promise} Resolves when contact's tag successfully removed
-   */
   async removeTag(params: TagRemoveParams): Promise<any> {
     try {
       const { contactId, tagName } = params;

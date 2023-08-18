@@ -167,7 +167,6 @@ describe("Tags", () => {
     contact.id = contactId;
     contact.tags = [tag]; // Existing tag assigned to contact
 
-    // Simulating repository responses
     mockRepository.findOne.mockResolvedValue(tag);
     mockContactRepository.findOne.mockResolvedValue(contact);
 
@@ -205,10 +204,8 @@ describe("Tags", () => {
     mockRepository.findOne.mockResolvedValue(tag);
     mockContactRepository.save.mockResolvedValue(removedTagContact);
 
-    // Call the removeTag method with the right parameters
     const result = await tags.removeTag({ contactId, tagName });
 
-    // Check the result
     expect(result).toEqual(removedTagContact);
   });
 });
