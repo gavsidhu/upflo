@@ -8,9 +8,10 @@
     "experimentalDecorators": true,
     "sourceMap": true,
     "outDir": "dist",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "declaration": true
   },
   "exclude": ["node_modules"],
-  "include": ["src/**/*", "types/global.d.ts"],
+  "include": ["src/**/*", "types/index.d.ts"],
   "lib": ["ES2015"]
 }
