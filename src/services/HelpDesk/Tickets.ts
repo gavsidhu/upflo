@@ -110,10 +110,12 @@ export class Tickets {
       });
 
       if (deleteResult.affected === 0) {
-        throw new Error(`List not found`);
+        throw new Error(`Ticket not found`);
       }
     } catch (error) {
-      throw new Error(`There was an error deleting the list: ${error.message}`);
+      throw new Error(
+        `There was an error deleting the ticket: ${error.message}`
+      );
     }
   }
 
