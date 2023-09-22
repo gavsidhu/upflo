@@ -6,8 +6,8 @@ describe("Email Class", () => {
   let mockEmailProvider: any;
 
   beforeEach(() => {
-    mockDataSource = {} as DataSource; // Cast empty object as DataSource type
-    mockEmailProvider = { sendEmail: jest.fn() }; // Mock EmailProvider's sendEmail
+    mockDataSource = {} as DataSource;
+    mockEmailProvider = { sendEmail: jest.fn() };
   });
 
   it("should send email", async () => {
