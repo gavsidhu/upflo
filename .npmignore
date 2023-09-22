@@ -9,6 +9,7 @@ jest.config.js
 node_modules/
 *.log
 *.ts
+*.sql
 *.map
 src/
 .env
@@ -18,3 +19,7 @@ src/
 
 *.sql
 *.sqlite
+
+todo.txt
+
+.DS_Store
