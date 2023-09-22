@@ -12,7 +12,6 @@ export class Lists {
   private connection: DataSource;
   private listRepository: Repository<List>;
   private contactRepository: Repository<Contact>;
-
   constructor(connection: DataSource) {
     this.connection = connection;
     this.listRepository = this.connection.getRepository(List);
