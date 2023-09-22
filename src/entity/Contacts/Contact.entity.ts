@@ -12,6 +12,7 @@ import { Note } from "./Note.entity";
 import { Tag } from "./Tag.entity";
 import { Ticket } from "../HelpDesk/Ticket.entity";
 import { List } from "./List.entity";
+import { EmailEvents } from "../Workflow/EmailEvents.entity";
 
 @Entity()
 export class Contact {
@@ -45,8 +46,8 @@ export class Contact {
   @Column({ nullable: true })
   leadStatus: string;
 
-  // @OneToMany(() => Note, (note) => note.contact)
-  // notes: Note[];
+  @OneToMany(() => Note, (note) => note.contact)
+  notes: Note[];
 
   @OneToMany(() => Ticket, (ticket) => ticket.contact)
   tickets: Ticket[];
@@ -58,6 +59,9 @@ export class Contact {
   @ManyToMany(() => List)
   @JoinTable()
   lists: List[];
+
+  @OneToMany(() => EmailEvents, (event) => event.contact)
+  emailEvents: EmailEvents[];
 
   @CreateDateColumn()
   createdAt: Date;
