@@ -6,12 +6,14 @@ import {
   ContactCreateParams,
   ContactUpdateParams,
 } from "../../../types/Contacts/Contact";
+import { Notes } from "./Notes";
 
 export class Contacts {
   private connection: DataSource;
   private contactRepository: Repository<Contact>;
   public tags: Tags;
   public lists: Lists;
+  public notes: Notes;
 
   constructor(connection: DataSource) {
     this.connection = connection;
