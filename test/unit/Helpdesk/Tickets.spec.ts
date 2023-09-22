@@ -41,7 +41,7 @@ describe("Tickets", () => {
     const fakeTicket = new Ticket();
     fakeTicket.id = ticketId;
 
-    mockRepository.findOne.mockResolvedValueOnce(fakeTicket); // Second call check with name and returns fakeList
+    mockRepository.findOne.mockResolvedValueOnce(fakeTicket);
 
     const result = await tickets.retrieve(ticketId);
 
@@ -126,7 +126,7 @@ describe("Tickets", () => {
 
     mockRepository.delete.mockResolvedValue({ affected: 0 } as DeleteResult);
 
-    await expect(tickets.delete(ticketId)).rejects.toThrow(`List not found`);
+    await expect(tickets.delete(ticketId)).rejects.toThrow(`Ticket not found`);
 
     expect(mockRepository.delete).toHaveBeenCalledWith({ id: ticketId });
   });
