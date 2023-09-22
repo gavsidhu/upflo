@@ -7,6 +7,7 @@ Upflo is a versatile backend library, developed in TypeScript. It offers functio
 1. **Contacts**: Provides functionality to manipulate contact data in your database such as creating, updating, retrieving, and deleting contacts.
 2. **Help Desk**: Provides a simple and efficient mechanism to manage helpdesk tickets ranging from creating, updating, deleting, to comprehensive listing functionalities.
 3. **Email**: Helps you to integrate with email provider Mailgun for seamless transmission of information to your contact list.
+4. **Workflows**: Helps you create, manage, and execute workflows.
 
 ## How to install:
 
@@ -20,27 +21,94 @@ $ npm install upflo
 import { Upflo, MailgunProvider } from "upflo";
 import { DataSourceOptions } from "typeorm";
 
-
 const options: DataSourceOptions = {
- /* Your database options */
-    database: "mydb.sql",
-    type: "sqlite",
+  /* Your database options */
+  database: "mydb.sql",
+  type: "sqlite",
 };
 
 const emailProvider = new MailgunProvider({
-    username: 'api',
-    key: "api-key"
-    domain: "your_domain"
+  username: "api",
+  key: "api-key",
+  domain: "your_domain",
 });
 
 const upflo = new Upflo(options);
 
-upflo.connect(emailProvider).then(()=>{
-    console.log("Connected")
+upflo.connect(emailProvider).then(async () => {
+  const workflow1 = upflo.workflows
+    .create()
+    .setName("workflow1")
+    .setDescription("workflow description")
+    .addEmailEvent({
+      body: "Hello test",
+      sendDelay: 0,
+      sendFrom: "john.doe@email.com",
+      subject: "This is a test",
+    })
+    .build();
+
+  const newContact = await upflo.contacts.create({
+    email: "john.doe@email.com",
+    firstName: "John",
+    lastName: "Doe",
+  });
+
+  upflo.workflows.startWorkflow(workflow1, newContact.email);
 });
 ```
 
 ## Documentation:
+
+### Workflows
+
+The `Workflows` module in the Upflo library allows you to create, manage, and execute workflows for sending email events at specified times.
+
+#### Building Workflows
+
+The package provides a fluent API for building workflows. Here's how you can create a new workflow:
+
+```typescript
+const workflow1 = upflo.workflows
+  .create()
+  .setName("workflow1")
+  .setDescription("workflow description")
+  .addEmailEvent({
+    body: "Hello test",
+    sendDelay: 0,
+    sendFrom: "john.doe@email.com",
+    subject: "This is a test",
+  })
+  .build();
+```
+
+#### Starting Workflows
+
+You can start a previously defined workflow for a specific contact by using the startWorkflow method:
+
+```typescript
+await upfloWorkflows.startWorkflow(workflow1, "contact@example.com");
+```
+
+#### Managing Workflows
+
+You can manage workflows with the following methods:
+
+```typescript
+// Save a workflow to the database
+await upflo.workflows.save(workflow);
+
+// Retrieve a workflow
+const workflow = await upflo.workflows.retrieve(workflowID);
+
+// Delete a workflow
+await upflo.workflows.delete(workflowId);
+
+// List a workflow
+const workflows = await upflo.workflows.list();
+```
+
+````
 
 ### Contacts
 
@@ -58,7 +126,7 @@ const updatedContact = await upflo.contacts.update(contactId, contactData);
 
 // Delete a contact
 await upflo.contacts.delete(contactId);
-```
+````
 
 ### Lists
 
