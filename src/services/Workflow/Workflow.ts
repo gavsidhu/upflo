@@ -44,10 +44,7 @@ export class Workflow {
   private initCronJob() {
     // every 45 seconds
     this.cronJob = cron.schedule("*/45 * * * * *", async () => {
-      console.log("running task every 45 sec");
       const emailsToBeSent = await this.getEmailsToBeSent();
-
-      console.log("emails: ", emailsToBeSent);
 
       await this.addEmailToQueue(emailsToBeSent);
 
@@ -59,14 +56,6 @@ export class Workflow {
 
   private async getEmailsToBeSent() {
     const currentTime = new Date().toUTCString();
-    console.log("current time: ", currentTime);
-
-    const allEmails = await this.emailEventRepository.find();
-
-    console.log("all: ", allEmails);
-    for (const s of allEmails) {
-      console.log("send at:", s.sendAt);
-    }
 
     const emailsToBeSent = await this.emailEventRepository.find({
       where: { sent: false, sendAt: LessThanOrEqual(currentTime) },
@@ -74,7 +63,6 @@ export class Workflow {
 
     const filteredEmails = await Promise.all(
       emailsToBeSent.map(async (email) => {
-        console.log("emaild id: ", email.id);
         // Check if the email event ID exists in the workflow_queue
         const existingQueueItem = await this.queueRepository
           .createQueryBuilder("queueItem")
@@ -117,7 +105,6 @@ export class Workflow {
 
   private async sendEmails() {
     const queueItems = await this.queueRepository.find();
-    console.log("queue:", queueItems);
     if (queueItems.length < 1) {
       return;
     }
@@ -159,7 +146,6 @@ export class Workflow {
     emailEvent.sent = true;
 
     await this.emailEventRepository.save(emailEvent);
-    console.log(`${emailEvent} with id ${id} was set to sent = true`);
   }
 
   private async addEmailEventRow(
@@ -171,8 +157,6 @@ export class Workflow {
 
       const time = new Date();
       const sendAt = time.setTime(time.getTime() + addHours(sendDelay));
-      console.log(sendAt);
-      console.log(new Date(sendAt));
       const emailEventRow = this.emailEventRepository.create({
         body,
         sent: false,
