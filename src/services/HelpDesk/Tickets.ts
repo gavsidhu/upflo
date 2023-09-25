@@ -6,6 +6,7 @@ import {
   TicketUpdateParams,
 } from "../../../types/Ticket";
 import { Contact } from "../../entity/Contacts/Contact.entity";
+import { EnsureConnection } from "../../decorators/ensureConnection";
 
 export class Tickets {
   private connection: DataSource;
@@ -18,6 +19,7 @@ export class Tickets {
     this.contactRepository = this.connection.getRepository(Contact);
   }
 
+  @EnsureConnection()
   async retrieve(ticketId: number): Promise<Ticket> {
     if (!ticketId) {
       throw new Error("No ticket id provided");
@@ -36,6 +38,7 @@ export class Tickets {
     }
   }
 
+  @EnsureConnection()
   async create(ticketData: TicketCreateParams): Promise<Ticket> {
     if (!ticketData) {
       throw new Error("No ticket data provided");
@@ -76,6 +79,7 @@ export class Tickets {
     }
   }
 
+  @EnsureConnection()
   async update(
     ticketId: number,
     ticketData: TicketUpdateParams
@@ -97,12 +101,14 @@ export class Tickets {
           id: ticketId,
         },
       });
+
       return updatedTag;
     } catch (error) {
       throw new Error(`Error updating a ticket: ${error.message}`);
     }
   }
 
+  @EnsureConnection()
   async delete(ticketId: number): Promise<void> {
     try {
       const deleteResult = await this.ticketRepository.delete({
@@ -119,15 +125,18 @@ export class Tickets {
     }
   }
 
+  @EnsureConnection()
   async list(params: TicketListParams = {}): Promise<Ticket[]> {
     try {
       if (params.status && params.status.length > 0) {
         const tickets = await this.ticketRepository.find({
           where: { status: In(params.status) },
         });
+
         return tickets;
       }
       const tickets = await this.ticketRepository.find();
+
       return tickets;
     } catch (error) {
       throw new Error(`Failed to list tickets: ${error.message}`);

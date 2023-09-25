@@ -7,6 +7,7 @@ import {
 } from "../../../types/Contacts/List";
 import { List } from "../../entity/Contacts/List.entity";
 import { Contact } from "../../entity/Contacts/Contact.entity";
+import { EnsureConnection } from "../../decorators/ensureConnection";
 
 export class Lists {
   private connection: DataSource;
@@ -18,6 +19,7 @@ export class Lists {
     this.contactRepository = this.connection.getRepository(Contact);
   }
 
+  @EnsureConnection()
   async retrieve(listId: string): Promise<List> {
     if (!listId) throw new Error("No list id provided");
     try {
@@ -32,18 +34,21 @@ export class Lists {
     }
   }
 
+  @EnsureConnection()
   async create(listData: ListCreateParams): Promise<List> {
     if (!listData) throw new Error("No list data provided");
 
     try {
       const newList = this.listRepository.create(listData);
       await this.listRepository.save(newList);
+
       return newList;
     } catch (error) {
       throw new Error(`Error when creating list: ${error.message}`);
     }
   }
 
+  @EnsureConnection()
   async update(listId: string, listData: ListUpdateParams): Promise<List> {
     if (!listId) throw new Error("No list id provided ");
     if (!listData) throw new Error("No list data provided");
@@ -56,12 +61,14 @@ export class Lists {
       const updatedList = await this.listRepository.findOne({
         where: { id: listId },
       });
+
       return updatedList;
     } catch (error) {
       throw new Error(`Error while updating list: ${error.message}`);
     }
   }
 
+  @EnsureConnection()
   async delete(listId: string): Promise<void> {
     try {
       const deleteResult = await this.listRepository.delete({
@@ -76,17 +83,21 @@ export class Lists {
     }
   }
 
+  @EnsureConnection()
   async list() {
     try {
       const lists = await this.listRepository.find();
+
       return lists;
     } catch (error) {
       throw new Error(`There was a problem listing lists: ${error}`);
     }
   }
 
+  @EnsureConnection()
   async addContact(params: ListAddContactParams): Promise<any> {
     const { contactId, listId } = params;
+
     const contact = await this.contactRepository.findOne({
       where: { id: contactId },
       relations: ["lists"],
@@ -99,19 +110,23 @@ export class Lists {
     try {
       if (contact.lists.some((existingList) => existingList.id === list.id)) {
         // If contact is already assigned to list, there's no need to make any changes
+
         return;
       }
       contact.lists.push(list);
       await this.contactRepository.save(contact);
+
       return list;
     } catch (error) {
       throw new Error(`There was an error adding the contact to the list`);
     }
   }
 
+  @EnsureConnection()
   async removeContact(params: ListRemoveContactParams): Promise<any> {
     try {
       const { contactId, listId } = params;
+
       const contact = await this.contactRepository.findOne({
         where: { id: contactId },
         relations: ["lists"],
@@ -134,6 +149,7 @@ export class Lists {
           (listItem) => listItem.id != list.id
         );
         await this.contactRepository.save(contact);
+
         return list;
       } else {
         throw new Error(

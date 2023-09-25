@@ -15,6 +15,7 @@ import WorkflowBuilder from "./WorkflowBuilder";
 import * as cron from "node-cron";
 import { Email } from "../Email";
 import { WorkflowQueueArchive } from "../../entity/Workflow/WorkflowQueueArchive.entity";
+import { EnsureConnection } from "../../decorators/ensureConnection";
 
 export class Workflow {
   private connection: DataSource;
@@ -40,7 +41,6 @@ export class Workflow {
 
     this.initCronJob();
   }
-
   private initCronJob() {
     // every 45 seconds
     this.cronJob = cron.schedule("*/45 * * * * *", async () => {
@@ -53,7 +53,7 @@ export class Workflow {
 
     this.cronJob.start();
   }
-
+  @EnsureConnection()
   private async getEmailsToBeSent() {
     const currentTime = new Date().toUTCString();
 
@@ -90,6 +90,7 @@ export class Workflow {
     return filteredAndNotNullEmails;
   }
 
+  @EnsureConnection()
   private async addEmailToQueue(emails: EmailEvents[]) {
     if (emails.length < 1) {
       return;
@@ -103,6 +104,7 @@ export class Workflow {
     }
   }
 
+  @EnsureConnection()
   private async sendEmails() {
     const queueItems = await this.queueRepository.find();
     if (queueItems.length < 1) {
@@ -133,6 +135,7 @@ export class Workflow {
     }
   }
 
+  @EnsureConnection()
   private async setEmailSent(id: string) {
     const emailEvent = await this.emailEventRepository.findOne({
       where: { id: id },
@@ -148,6 +151,7 @@ export class Workflow {
     await this.emailEventRepository.save(emailEvent);
   }
 
+  @EnsureConnection()
   private async addEmailEventRow(
     emailEvent: EmailEvent,
     contact: Contact
@@ -171,7 +175,7 @@ export class Workflow {
 
       return emailEventRow;
     } catch (error) {
-      throw new Error(`Error adding email event: ${error.message}`);
+      throw new Error(`Error adding email event. ${error.message}`);
     }
   }
 
@@ -179,6 +183,7 @@ export class Workflow {
     return new WorkflowBuilder();
   }
 
+  @EnsureConnection()
   public async startWorkflow(
     workflow: WorkflowConfig,
     contactEmail: string,
@@ -202,7 +207,7 @@ export class Workflow {
         );
       }
     } catch (error) {
-      console.log(error);
+      throw new Error(error);
     }
   }
 
@@ -210,6 +215,7 @@ export class Workflow {
     return this.cronJob;
   }
 
+  @EnsureConnection()
   public async unsubscribe(contactEmail: string) {
     try {
       const emails = await this.emailEventRepository.find({
@@ -229,6 +235,7 @@ export class Workflow {
     }
   }
 
+  @EnsureConnection()
   public async save(workflow: WorkflowConfig) {
     try {
       const newWorkflow = this.workflowRepository.create(workflow);
@@ -238,6 +245,8 @@ export class Workflow {
       throw new Error(`There was an error saving the workflow. ${error}`);
     }
   }
+
+  @EnsureConnection()
   public async retrieve(workflowId: string) {
     try {
       const workflow = await this.workflowRepository.findOne({
@@ -253,6 +262,8 @@ export class Workflow {
       throw new Error(`There wwas an error retrieving the workflow. ${error}`);
     }
   }
+
+  @EnsureConnection()
   public async delete(workflowId: string): Promise<void> {
     try {
       const deleteResult = await this.workflowRepository.delete({
@@ -268,6 +279,8 @@ export class Workflow {
       );
     }
   }
+
+  @EnsureConnection()
   public async list(): Promise<WorkflowEntity[]> {
     try {
       const workflows = await this.workflowRepository.find();

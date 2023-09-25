@@ -7,6 +7,7 @@ import {
   ContactUpdateParams,
 } from "../../../types/Contacts/Contact";
 import { Notes } from "./Notes";
+import { EnsureConnection } from "../../decorators/ensureConnection";
 
 export class Contacts {
   private connection: DataSource;
@@ -21,7 +22,7 @@ export class Contacts {
     this.tags = new Tags(connection);
     this.lists = new Lists(connection);
   }
-
+  @EnsureConnection()
   async retrieve(contactId: string) {
     try {
       const contact = await this.contactRepository.findOne({
@@ -34,19 +35,20 @@ export class Contacts {
       throw new Error("There was an error retrieving the contact");
     }
   }
-
+  @EnsureConnection()
   async create(contactData: ContactCreateParams) {
     if (!contactData) throw new Error("No contact data provided");
 
     try {
       const newContact = this.contactRepository.create(contactData);
       await this.contactRepository.save(newContact);
+
       return newContact;
     } catch (error) {
       throw new Error(`Error creating contact: ${error.message}`);
     }
   }
-
+  @EnsureConnection()
   async update(contactId: string, contactData: ContactUpdateParams) {
     if (!contactData) throw new Error("No contact data provided");
 
@@ -61,12 +63,13 @@ export class Contacts {
       const updatedContact = await this.contactRepository.findOne({
         where: { id: contactId },
       });
+
       return updatedContact;
     } catch (error) {
       throw new Error(`Error updating contact: ${error.message}`);
     }
   }
-
+  @EnsureConnection()
   async delete(contactId: string) {
     try {
       const deleteResult = await this.contactRepository.delete({
@@ -82,10 +85,11 @@ export class Contacts {
       );
     }
   }
-
+  @EnsureConnection()
   async list() {
     try {
       const contacts = await this.contactRepository.find();
+
       return contacts;
     } catch (error) {
       throw new Error(`There was an error listing contacts: ${error.message}`);

@@ -5,6 +5,7 @@ import {
 } from "../../../types/Contacts/Note";
 import { Contact } from "../../entity/Contacts/Contact.entity";
 import { Note } from "../../entity/Contacts/Note.entity";
+import { EnsureConnection } from "../../decorators/ensureConnection";
 
 export class Notes {
   private connection: DataSource;
@@ -17,6 +18,7 @@ export class Notes {
     this.contactRepository = this.connection.getRepository(Contact);
   }
 
+  @EnsureConnection()
   async retrieve(id: string): Promise<Note> {
     try {
       const note = await this.notesRepository.findOne({
@@ -33,6 +35,7 @@ export class Notes {
     }
   }
 
+  @EnsureConnection()
   async create(noteData: NoteCreateParams) {
     if (!noteData) throw new Error("No note data provided");
 
@@ -54,12 +57,14 @@ export class Notes {
         title,
       });
       await this.notesRepository.save(newNote);
+
       return newNote;
     } catch (error) {
       throw new Error(`There was an error creating a note: ${error.message}`);
     }
   }
 
+  @EnsureConnection()
   async update(noteId: string, noteData: NoteUpdateParams) {
     try {
       const { contactEmail, content, title } = noteData;
@@ -91,6 +96,7 @@ export class Notes {
         where: { id: noteId },
         relations: ["notes"],
       });
+
       return updatedNote;
     } catch (error) {
       throw new Error(
@@ -99,6 +105,7 @@ export class Notes {
     }
   }
 
+  @EnsureConnection()
   async delete(noteId: string) {
     try {
       const deleteResult = await this.notesRepository.delete({
@@ -112,9 +119,12 @@ export class Notes {
       throw new Error(`There was an error deleting the note: ${error.message}`);
     }
   }
+
+  @EnsureConnection()
   async list() {
     try {
       const notes = await this.notesRepository.find();
+
       return notes;
     } catch (error) {
       throw new Error(`There was an error listing notes: ${error.message}`);

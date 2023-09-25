@@ -8,6 +8,7 @@ import {
   TagUpdateParams,
 } from "../../../types/Contacts/Tag";
 import { Contact } from "../../entity/Contacts/Contact.entity";
+import { EnsureConnection } from "../../decorators/ensureConnection";
 
 export class Tags {
   private connection: DataSource;
@@ -20,6 +21,7 @@ export class Tags {
     this.contactRepository = this.connection.getRepository(Contact);
   }
 
+  @EnsureConnection()
   async retrieve(identifier: string): Promise<Tag> {
     try {
       // Try to find the tag by id first
@@ -38,17 +40,20 @@ export class Tags {
     }
   }
 
+  @EnsureConnection()
   async create(tagData: TagCreateParams) {
     if (!tagData) throw new Error("No tag data provided");
     try {
       const newTag = this.tagRepository.create(tagData);
       await this.tagRepository.save(newTag);
+
       return newTag;
     } catch (error) {
       throw new Error(`There was an error creating a tag: ${error.message}`);
     }
   }
 
+  @EnsureConnection()
   async update(tagId: string, tagData: TagUpdateParams) {
     try {
       const tag = await this.tagRepository.findOne({ where: { id: tagId } });
@@ -60,6 +65,7 @@ export class Tags {
       const updatedTag = await this.tagRepository.findOne({
         where: { id: tagId },
       });
+
       return updatedTag;
     } catch (error) {
       throw new Error(
@@ -68,6 +74,7 @@ export class Tags {
     }
   }
 
+  @EnsureConnection()
   async delete(tagId: string) {
     try {
       const deleteResult = await this.tagRepository.delete({
@@ -81,15 +88,19 @@ export class Tags {
       throw new Error(`There was an error deleting the tag: ${error.message}`);
     }
   }
+
+  @EnsureConnection()
   async list() {
     try {
       const tags = await this.tagRepository.find();
+
       return tags;
     } catch (error) {
       throw new Error(`There was an error listing tags: ${error.message}`);
     }
   }
 
+  @EnsureConnection()
   async assign(params: TagAssignParams): Promise<Tag> {
     try {
       const { contactId, tagName } = params;
@@ -116,6 +127,7 @@ export class Tags {
         contact.tags.some((existingTag) => existingTag.id === tag.id)
       ) {
         // If the tag is already assigned, there's no need to make any changes.
+
         return;
       }
 
@@ -130,6 +142,7 @@ export class Tags {
     }
   }
 
+  @EnsureConnection()
   async removeTag(params: TagRemoveParams): Promise<any> {
     try {
       const { contactId, tagName } = params;
@@ -153,6 +166,7 @@ export class Tags {
       if (contact.tags.some((existingTag) => existingTag.id == tag.id)) {
         contact.tags = contact.tags.filter((tagItem) => tagItem.id != tag.id);
         await this.contactRepository.save(contact);
+
         return contact;
       } else {
         throw new Error(
