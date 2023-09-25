@@ -17,7 +17,9 @@ $ npm install upflo
 
 ## How to use:
 
-```javascript
+```typescript
+//upflo.js
+
 import { Upflo, MailgunProvider } from "upflo";
 import { DataSourceOptions } from "typeorm";
 
@@ -33,29 +35,9 @@ const emailProvider = new MailgunProvider({
   domain: "your_domain",
 });
 
-const upflo = new Upflo(options);
+const upflo = new Upflo(options, emailProvider);
 
-upflo.connect(emailProvider).then(async () => {
-  const workflow1 = upflo.workflows
-    .create()
-    .setName("workflow1")
-    .setDescription("workflow description")
-    .addEmailEvent({
-      body: "Hello test",
-      sendDelay: 0,
-      sendFrom: "john.doe@email.com",
-      subject: "This is a test",
-    })
-    .build();
-
-  const newContact = await upflo.contacts.create({
-    email: "john.doe@email.com",
-    firstName: "John",
-    lastName: "Doe",
-  });
-
-  upflo.workflows.startWorkflow(workflow1, newContact.email);
-});
+export upflo
 ```
 
 ## Documentation:
@@ -108,7 +90,37 @@ await upflo.workflows.delete(workflowId);
 const workflows = await upflo.workflows.list();
 ```
 
-````
+### Handling Events
+
+Upflo provides an event handling mechanism using the Node.js EventEmitter class. You can use this to listen to and emit custom events within your application.
+
+`on(event: string, listener: (...args: any[]) => void)`
+
+The `on` method allows you to register event listeners. When the specified event is emitted, the listener function will be executed.
+
+- `event` (string): The name of the event you want to listen to.
+
+- `listener` (function): The function to be called when the event is emitted. It can accept any number of arguments.
+
+`emit(event: string, ...args: any[])`
+
+The `emit` method allows you to trigger (emit) a custom event with optional data arguments.
+
+- `event` (string): The name of the event to emit.
+
+- `...args` (any[]): Optional data arguments to pass to event listeners.
+
+#### Example:
+
+```typescript
+// Register an event listener
+upflo.on("contact.created", (contactId: number) => {
+  console.log(`Contact with ID ${contactId} has been created.`);
+});
+
+// Emit a custom event
+upflo.emit("contact.created", 123);
+```
 
 ### Contacts
 
@@ -126,7 +138,7 @@ const updatedContact = await upflo.contacts.update(contactId, contactData);
 
 // Delete a contact
 await upflo.contacts.delete(contactId);
-````
+```
 
 ### Lists
 
