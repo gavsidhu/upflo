@@ -5,6 +5,7 @@ import { Contact } from "../../../src/entity/Contacts/Contact.entity";
 import { Workflow as WorkflowEntity } from "../../../src/entity/Workflow/Workflow.entity";
 import { Email } from "../../../src/services/Email";
 import { WorkflowConfig } from "../../../types/Workflow";
+import { EmailEvents } from "../../../src/entity/Workflow/EmailEvents.entity";
 
 describe("Workflow", () => {
   let workflows: Workflow;
@@ -12,6 +13,7 @@ describe("Workflow", () => {
   let mockDataSource: MockProxy<DataSource>;
   let mockWorkflowRepository: MockProxy<Repository<WorkflowEntity>>;
   let mockContactRepository: MockProxy<Repository<Contact>>;
+  let mockEmailEventRepository: MockProxy<Repository<EmailEvents>>;
   let mockEmailProvider: any;
 
   beforeEach(() => {
@@ -22,12 +24,15 @@ describe("Workflow", () => {
   beforeAll(() => {
     mockWorkflowRepository = mock<Repository<WorkflowEntity>>();
     mockContactRepository = mock<Repository<Contact>>();
+    mockEmailEventRepository = mock<Repository<EmailEvents>>();
     mockDataSource = mock<DataSource>();
     mockDataSource.getRepository.mockImplementation((entity) => {
       if ((entity as Function).name === "Workflow") {
         return mockWorkflowRepository as any;
       } else if ((entity as Function).name === "Contact") {
         return mockContactRepository as any;
+      } else if ((entity as Function).name === "EmailEvents") {
+        return mockEmailEventRepository as any;
       }
     });
     emails = new Email(mockDataSource, mockEmailProvider);
@@ -64,15 +69,9 @@ describe("Workflow", () => {
 
     mockContactRepository.findOne.mockResolvedValueOnce(contact);
 
-    const emailEventMock = jest.fn();
-    mockDataSource.getRepository.mockImplementation((entity) => {
-      if ((entity as Function).name === "EmailEvents") {
-        return {
-          create: emailEventMock,
-          save: async () => {},
-        } as any;
-      }
-    });
+    const newRow = new EmailEvents();
+
+    mockEmailEventRepository.create.mockReturnValue(newRow);
 
     await workflows.startWorkflow(workflowConfig, contact.email);
 
